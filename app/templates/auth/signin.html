@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/base.css') ~ '?' ~ cache_id }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/auth/signing.css') ~ '?' ~ cache_id }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles/auth/signin.css') ~ '?' ~ cache_id }}">
+
+</head>
+<body>
+  <main class="form-container">
+    <h3>Sign in to NeighborShare</h3>
+    <form method="POST" class="signing-form">
+      {{ form.hidden_tag() }}
+      {{ form.email(class='full-len h', placeholder='email address') }}
+      {{ form.password(class='full-len h', placeholder='password') }}
+      {{ form.submit(class='sign-btn full-len submit-btn') }}
+      <div class="links full-len">
+        <div class="session">{{ form.keep_session() }}{{ form.keep_session.label }}</div>
+        <a href="{{ url_for('auth.password_reset') }}">Forgotten password?</a>
+      </div>
+      <a href="{{ url_for('auth.register') }}" class="sign-btn create-btn full-len">Create new account</a>
+    </form>
+  </main>
+</body>
+</html>

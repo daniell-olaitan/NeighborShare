@@ -29,6 +29,10 @@ class User(UserMixin, BaseModel, db.Model):
             password_hash = md5(kwargs['password'].encode('utf-8'))
             self.password = password_hash.hexdigest()
 
+    def set_password(self, password):
+        password_hash = md5(password.encode('utf-8'))
+        self.password = password_hash.hexdigest()
+
     def generate_confirmation_token(self):
         s = Serializer(current_app.config['SECRET_KEY'], 'confirmation')
         return s.dumps({'confirm': self.id})
@@ -44,8 +48,21 @@ class User(UserMixin, BaseModel, db.Model):
         self.confirmed = True
         return True
 
-    def confirm_account(self):
-        token = self.generate_confirmation_token()
+    def generate_password_token(self):
+        s = Serializer(current_app.config['SECRET_KEY'], 'password')
+        return s.dumps({'password': self.id})
+
+    def confirm_password_token(self, token, max_age=600):
+        s = Serializer(current_app.config['SECRET_KEY'], 'password')
+        try:
+            data = s.loads(token, max_age=max_age)
+        except:
+            return False
+        if data.get('password') != self.id:
+            return False
+        return True
+
+    def send_account_confirmation_link(self, token):
         msg = Message(subject='Confirm Your Account',
                       sender=current_app.config['MAIL_SENDER'],
                       recipients=[self.email]
@@ -56,10 +73,20 @@ class User(UserMixin, BaseModel, db.Model):
         mail.send(msg)
         flash('A confirmation email has been sent to you')
 
+    def send_password_reset_link(self, token):
+        msg = Message(subject='Reset Your Password',
+                      sender=current_app.config['MAIL_SENDER'],
+                      recipients=[self.email]
+        )
+        msg.body = render_template('auth/password_reset_email.txt', user=self,
+                                   token=token)
+
+        mail.send(msg)
+        flash('A password reset link has been sent to you')
+
     def authenticate_user(self, password):
         password_hash = md5(password.encode('utf-8'))
         return self.password == password_hash.hexdigest()
-        # return check_password_hash(self.password_hash, password)
 
     def signin_user(self, remember):
         login_user(self, remember)

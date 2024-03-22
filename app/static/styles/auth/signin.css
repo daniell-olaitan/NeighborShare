@@ -1,0 +1,24 @@
+.create-btn {
+  background-color: #66b032;
+  text-align: center;
+}
+
+.links {
+  display: flex;
+  margin-bottom: 20px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid var(--line-clr);
+}
+
+.session {
+  display: flex;
+  gap: 10px;
+}
+
+.links > a {
+  margin-left: auto;
+}
+
+.session label:hover {
+  color: orange;
+}

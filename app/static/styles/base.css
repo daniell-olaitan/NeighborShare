@@ -1,0 +1,176 @@
+* {
+  margin: 0;
+  padding: 0;
+  /* box-sizing: border-box; */
+}
+
+html {
+  --color: #00aae4; /* #081b4b; #11192e;  #25d366; */
+  --line-clr: #ccc;
+  color: var(--color);
+}
+
+header {
+  border-bottom: 1px solid var(--line-clr);
+  padding: 24px;
+  margin-bottom: 40px;
+  /* font-weight: 900; */
+}
+
+main h1 {
+  margin-left: 100px;
+  margin-bottom: 40px;
+}
+
+li {
+  list-style: none;
+}
+
+.navbar {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  gap: 40px;
+}
+
+.logo {
+  flex: 1.5;
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: bold;
+}
+
+nav {
+  flex: 2;
+  /* gap: 30px; */
+}
+
+.links {
+  display: flex;
+  gap: 30px;
+  font-size: 18px;
+}
+
+.logo {
+  margin-left: 20px;
+}
+
+.navbar-right {
+   margin-right: 30px;
+   display: flex;
+   gap: 40px;
+}
+
+.location,
+.filter {
+  border: 1px solid var(--color);
+  padding: 10px;
+  color: var(--color);
+  height: min-content;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.user-picture {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+}
+
+.profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* .links li {
+  flex-shrink: 0;
+} */
+
+.links a:hover,
+.navbar-right a:hover {
+  color: orange;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color);
+}
+
+.search {
+  /* position: absolute; */
+  display: flex;
+  right: 0;
+  gap: 15px;
+}
+
+.bar {
+  outline: none;
+  width: 50%;
+  height: 50px;
+  font-weight: bold;
+  padding: 10px 20px;
+  box-sizing: border-box;
+  border: 1px solid var(--color);
+  border-radius: 10px;
+  margin-left: auto;
+  flex-grow: 0;
+}
+
+.btn {
+  background-color: var(--color);
+  font-size: 18px;
+  font-weight: bold;
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.close {
+  display: none;
+}
+
+.dropdown {
+  display: none;
+}
+
+.dropdown.open {
+  display: flex;
+  padding: 24px;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 1px solid var(--line-clr);
+  margin-bottom: 40px;
+}
+
+.btn:hover,
+.location:hover,
+.filter:hover {
+  scale: 0.9;
+}
+
+.btn:active,
+.location:active,
+.filter:active {
+  scale: 1;
+}
+
+.toggle-btn {
+  color: var(--color);
+  font-size: 30px;
+  display: none;
+  cursor: pointer;
+}
+
+@media (max-width: 800px) {
+  .nav-top {
+    display: none;
+  }
+
+  .toggle-btn {
+    display: block;
+  }
+}

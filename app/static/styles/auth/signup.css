@@ -1,0 +1,9 @@
+.log-in {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.log-in p {
+  color: black;
+}
