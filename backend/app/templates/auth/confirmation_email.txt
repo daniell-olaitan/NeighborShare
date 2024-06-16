@@ -1,0 +1,15 @@
+Dear {{ user.username }},
+
+Welcome to NeighborShare!
+
+Please click on the following link to confirm your account:
+
+{{ url_for('auth.confirm_registration', token=token, _external=True) }}
+
+Please note that the link expires in 10 minutes.
+
+
+
+Sincerely,
+
+The NeighborShare Team.

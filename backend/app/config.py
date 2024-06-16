@@ -3,7 +3,7 @@
 Configuration file for the project
 """
 from os import getenv
-# from uuid import uuid4
+from datetime import timedelta
 
 
 class Config:
@@ -18,6 +18,12 @@ class Config:
     MAIL_USERNAME = getenv('MAIL_USERNAME')
     MAIL_PASSWORD = getenv('MAIL_PASSWORD')
     MAIL_SENDER = getenv('MAIL_SENDER')
+    JWT_SECRET_KEY = getenv('JWT_SECRET_KEY')
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=10)
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=15)
+    JWT_BLACKLIST_ENABLED = True
+    JWT_BLACKLIST_TOKEN_CHECKS = ["access", "refresh"]
+    FRONTEND_BASE_URL = 'http://localhost:5173'
 
 
 class DevelopmentConfig(Config):

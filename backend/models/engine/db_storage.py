@@ -16,7 +16,7 @@ class DBStorage(SQLAlchemy):
         self.session.add(obj)
         self.session.commit()
 
-    def remove_object(self, obj):
+    def remove(self, obj):
         """deletes an object from the database
 
         Args:

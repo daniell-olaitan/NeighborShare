@@ -2,25 +2,26 @@
 """
 Module defines the User model
 """
-from flask_login import UserMixin, login_user, logout_user
 from models.base_model import BaseModel
 from models import db
 from itsdangerous import TimedSerializer as Serializer
-from flask import current_app, render_template, flash
+from flask import current_app, render_template
 from flask_mail import Message
 from hashlib import md5
-from app import login_manager, mail
+from app import mail, scheduler
+from datetime import datetime, timedelta
+from flask_jwt_extended import create_access_token, create_refresh_token
+from flask_jwt_extended import get_jwt_identity, get_jwt
+from models.invalid_tokens import InvalidToken
 
 
-class User(UserMixin, BaseModel, db.Model):
+class User(BaseModel, db.Model):
     __tablename__ = 'users'
     username = db.Column(db.String(128), unique=True, nullable=False)
     email = db.Column(db.String(128), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
-    home_address = db.Column(db.String(256), nullable=False)
-    latitude = db.Column(db.Float(), nullable=False)
-    longitude = db.Column(db.Float(), nullable=False)
     confirmed = db.Column(db.Boolean, default=False)
+    password_reset_confirmed = db.Column(db.Boolean, default=False)
 
     def __init__(self, **kwargs):
         """initializes user"""
@@ -29,38 +30,22 @@ class User(UserMixin, BaseModel, db.Model):
             password_hash = md5(kwargs['password'].encode('utf-8'))
             self.password = password_hash.hexdigest()
 
+    @classmethod
+    def get_current_user(cls):
+        id = get_jwt_identity()
+        return cls.query.filter_by(id=id).first()
+
     def set_password(self, password):
         password_hash = md5(password.encode('utf-8'))
         self.password = password_hash.hexdigest()
 
     def generate_confirmation_token(self):
         s = Serializer(current_app.config['SECRET_KEY'], 'confirmation')
-        return s.dumps({'confirm': self.id})
-
-    def confirm_token(self, token, max_age=600):
-        s = Serializer(current_app.config['SECRET_KEY'], 'confirmation')
-        try:
-            data = s.loads(token, max_age=max_age)
-        except:
-            return False
-        if data.get('confirm') != self.id:
-            return False
-        self.confirmed = True
-        return True
+        return s.dumps({'confirm': self.email})
 
     def generate_password_token(self):
         s = Serializer(current_app.config['SECRET_KEY'], 'password')
         return s.dumps({'password': self.id})
-
-    def confirm_password_token(self, token, max_age=600):
-        s = Serializer(current_app.config['SECRET_KEY'], 'password')
-        try:
-            data = s.loads(token, max_age=max_age)
-        except:
-            return False
-        if data.get('password') != self.id:
-            return False
-        return True
 
     def send_account_confirmation_link(self, token):
         msg = Message(subject='Confirm Your Account',
@@ -69,9 +54,7 @@ class User(UserMixin, BaseModel, db.Model):
         )
         msg.body = render_template('auth/confirmation_email.txt', user=self,
                                    token=token)
-
         mail.send(msg)
-        flash('A confirmation email has been sent to you')
 
     def send_password_reset_link(self, token):
         msg = Message(subject='Reset Your Password',
@@ -80,18 +63,17 @@ class User(UserMixin, BaseModel, db.Model):
         )
         msg.body = render_template('auth/password_reset_email.txt', user=self,
                                    token=token)
-
         mail.send(msg)
-        flash('A password reset link has been sent to you')
 
     def authenticate_user(self, password):
         password_hash = md5(password.encode('utf-8'))
         return self.password == password_hash.hexdigest()
 
-    def signin_user(self, remember):
-        login_user(self, remember)
+    def schedule_deletion(self):
+        """Schedule a one-time job to delete the user if not confirmed after delay."""
+        def delete_unverified_user():
+            if not self.confirmed:
+                db.remove(self)
 
-
-@login_manager.user_loader
-def load_user(user_id):
-    return User.query.get(user_id)
+        run_time = datetime.now(datetime.UTC) + timedelta(minutes=10)
+        scheduler.add_job(func=delete_unverified_user, trigger='date', run_time=run_time)
